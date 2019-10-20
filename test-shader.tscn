@@ -31,9 +31,11 @@ shader_param/level = 0.0
 [sub_resource type="Shader" id=3]
 code = "shader_type canvas_item;
 
-uniform float widthU  = 1.0;
-uniform float widthD  = 1.0;
-uniform float height  = 1.0;
+uniform float widthU     = 1.0;
+uniform float widthD     = 1.0;
+uniform float height     = 1.0;
+uniform float downOffset = 1.0;
+
 uniform sampler2D inputTexture;
 
 varying vec2 vert;
@@ -42,17 +44,18 @@ void vertex() {
 	vert = VERTEX;
 }
 
-	
 
 void fragment() {
 	
-	float medianOffset = widthU / 2.0;
-	float xDifference  = widthU - widthD;
-	float widthRatio   = widthD / widthU;
-	float downRatio    = height / (xDifference / 2.0);
-	float xOffsetScale = (vert.x + medianOffset - vert.y / downRatio) / widthD;
-	float xFactor      = height / (height - vert.y * (xDifference / widthU)); 
-	float xx 		   = xOffsetScale * widthRatio * xFactor;
+	float medianOffset 	  = widthU / 2.0;
+	float xDifference  	  = widthU - widthD;
+	float widthRatio  	  = widthD / widthU;
+	float downOffsetRatio = height / (xDifference / 2.0);
+	float xTargetOffset   = 1.0 * downOffset * vert.y / height; 
+	float xOffsetScale	  = (vert.x + medianOffset - vert.y / downOffsetRatio - xTargetOffset) / widthD;
+	float xFactor      	  = height / (height - vert.y * (xDifference / widthU));
+	
+	float xx 		   	  = xOffsetScale * widthRatio * xFactor;
 
     vec4 col = vec4(xx, 0, 0.0, 1.0);
 //	COLOR = col;
@@ -62,9 +65,10 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id=4]
 shader = SubResource( 3 )
-shader_param/widthU = 100.0
-shader_param/widthD = 50.0
+shader_param/widthU = 20
+shader_param/widthD = 50
 shader_param/height = 50.0
+shader_param/downOffset = 10.0
 shader_param/inputTexture = ExtResource( 3 )
 
 [node name="Root" type="Node2D"]
@@ -108,9 +112,10 @@ script = ExtResource( 2 )
 [node name="TubeEl" type="Polygon2D" parent="."]
 material = SubResource( 4 )
 texture = ExtResource( 3 )
-polygon = PoolVector2Array( -50, 0, 50, 0, 25, 50, -25, 50 )
+polygon = PoolVector2Array( -10, 0, 10, 0, 35, 50, -15, 50 )
 uv = PoolVector2Array( 0, 0, 580, 0, 580, 580, 0, 580 )
 script = ExtResource( 4 )
-start = Vector3( 0, 0, 100 )
-end = Vector3( 0, 50, 50 )
+startWidth = 20
+endWidth = 50
+end = Vector2( 10, 50 )
 inputTexture = ExtResource( 3 )
