@@ -31,10 +31,11 @@ shader_param/level = 0.0
 [sub_resource type="Shader" id=3]
 code = "shader_type canvas_item;
 
-uniform float widthU     = 1.0;
-uniform float widthD     = 1.0;
-uniform float height     = 1.0;
-uniform float downOffset = 1.0;
+uniform float widthU       = 1.0;
+uniform float widthD       = 1.0;
+uniform float medianHeight = 1.0;
+uniform float downOffset   = 1.0;
+uniform float downAngle    = 0.0;
 
 uniform sampler2D inputTexture;
 
@@ -47,28 +48,43 @@ void vertex() {
 
 void fragment() {
 	
+	float height          = medianHeight;
 	float medianOffset 	  = widthU / 2.0;
 	float xDifference  	  = widthU - widthD;
-	float widthRatio  	  = widthD / widthU;
-	float downOffsetRatio = height / (xDifference / 2.0);
+	// float widthRatio  	  = widthD / widthU;
+	
+	
+	float xRotateRatio    = cos(downAngle);
+	
+	
+	float widthRatio  	  = widthD / (xRotateRatio * widthU);
+	float xRotateOffset   = (1.0 - xRotateRatio) * widthU / 2.0;
+	float vertaaa  = 1.0;// vert.y / (medianHeight);
 	float xTargetOffset   = 1.0 * downOffset * vert.y / height; 
-	float xOffsetScale	  = (vert.x + medianOffset - vert.y / downOffsetRatio - xTargetOffset) / widthD;
+	
+	float downOffsetRatio = height / (xDifference / 2.0);
+	float xOffsetScale	  = (vert.x + medianOffset - vert.y / downOffsetRatio - xTargetOffset - xRotateOffset) / widthD;
 	float xFactor      	  = height / (height - vert.y * (xDifference / widthU));
 	
 	float xx 		   	  = xOffsetScale * widthRatio * xFactor;
 
-    vec4 col = vec4(xx, 0, 0.0, 1.0);
-//	COLOR = col;
-	COLOR = texture(inputTexture, vec2(xx, UV.y));	
+	//float yRotateRatio    = sin(downAngle) * vert.y / ((vert.x + medianOffset - vert.y / downOffsetRatio ));
+	float yRotateRatio    = (1.0 + sin(downAngle)) * vert.y / (medianHeight);
+	float yRotateRatio2    = sin(downAngle) * vert.y / (medianHeight);
+	
+    vec4 col = vec4(0.0, yRotateRatio, 0.0, 1.0);
+	//COLOR = col;
+	COLOR = texture(inputTexture, vec2(xx, yRotateRatio));	
 	
 }"
 
 [sub_resource type="ShaderMaterial" id=4]
 shader = SubResource( 3 )
-shader_param/widthU = 20
-shader_param/widthD = 50
-shader_param/height = 50.0
-shader_param/downOffset = 10.0
+shader_param/widthU = 30
+shader_param/widthD = 30
+shader_param/medianHeight = 30.0
+shader_param/downOffset = 0.0
+shader_param/downAngle = 0.785398
 shader_param/inputTexture = ExtResource( 3 )
 
 [node name="Root" type="Node2D"]
@@ -112,10 +128,11 @@ script = ExtResource( 2 )
 [node name="TubeEl" type="Polygon2D" parent="."]
 material = SubResource( 4 )
 texture = ExtResource( 3 )
-polygon = PoolVector2Array( -10, 0, 10, 0, 35, 50, -15, 50 )
+polygon = PoolVector2Array( -15, 0, 15, 0, 10.6066, 40.6066, -10.6066, 19.3934 )
 uv = PoolVector2Array( 0, 0, 580, 0, 580, 580, 0, 580 )
 script = ExtResource( 4 )
-startWidth = 20
-endWidth = 50
-end = Vector2( 10, 50 )
+end = Vector2( 0, 30 )
+startWidth = 30
+endWidth = 30
+endAngle = 45
 inputTexture = ExtResource( 3 )

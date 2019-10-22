@@ -1,10 +1,11 @@
 extends Polygon2D
 tool
 
-
+export var end = Vector2() setget set_end
 export var startWidth = 10 setget set_start_width
 export var endWidth = 10 setget set_end_width
-export var end = Vector2() setget set_end
+
+export var endAngle = 0 setget set_end_angle
 
 export(Texture) var inputTexture setget set_texture
 
@@ -28,6 +29,11 @@ func set_texture(val):
 	texture = val
 	updatePolygon()
 	updateUv()
+	
+func set_end_angle(val):
+	endAngle = val
+	updatePolygon()
+	updateUv()
 
 func updatePolygon():
 	var median = [Vector2(-startWidth / 2, 0), Vector2(end.x - startWidth / 2, end.y)]
@@ -36,16 +42,23 @@ func updatePolygon():
 	polygon.append(Vector2(median[0].x - startWidth / 2 + startWidth / 2, median[0].y))
 	polygon.append(Vector2(median[0].x + startWidth / 2 + startWidth / 2, median[0].y))
 
-	polygon.append(Vector2(median[1].x + endWidth / 2 + startWidth / 2, median[1].y))
-	polygon.append(Vector2(median[1].x - endWidth / 2 + startWidth / 2, median[1].y))
+	var radAngle = deg2rad(endAngle)
+	var endRotateOffset = Vector2(cos(radAngle) * endWidth / 2, sin(radAngle) * endWidth / 2)
+	
+	polygon.append(endRotateOffset + Vector2(median[1].x + startWidth / 2, median[1].y))
+	polygon.append(-endRotateOffset + Vector2(median[1].x + startWidth / 2, median[1].y))
+
+	#polygon.append(Vector2(median[1].x + endWidth / 2 + startWidth / 2, median[1].y))
+	#polygon.append(Vector2(median[1].x - endWidth / 2 + startWidth / 2, median[1].y))
 
 	set_polygon(polygon)
 	
 	var material = get_material()
 	material.set_shader_param("widthU", startWidth)
-	material.set_shader_param("widthD", endWidth)
-	material.set_shader_param("height", median[1].y)
+	material.set_shader_param("widthD", endWidth - endRotateOffset * 2)
+	material.set_shader_param("medianHeight", median[1].y)
 	material.set_shader_param("downOffset", end.x)
+	material.set_shader_param("downAngle", radAngle)
 	
 	material.set_shader_param("inputTexture", inputTexture)
 	
