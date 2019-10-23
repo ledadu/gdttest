@@ -31,10 +31,10 @@ shader_param/level = 0.0
 [sub_resource type="Shader" id=3]
 code = "shader_type canvas_item;
 
+uniform vec2 p0;
 uniform vec2 p1;
 uniform vec2 p2;
 uniform vec2 p3;
-uniform vec2 p4;
 
 uniform sampler2D inputTexture;
 
@@ -44,43 +44,55 @@ void vertex() {
 	vert = VERTEX;
 }
 
+float Wedge2D(vec2 v, vec2 w) {
+	return v.x*w.y - v.y*w.x;
+}
 
 void fragment() {
-	float width1 = p2.x - p1.x;
-	float width2 = p3.x - p4.x;
-	float height1 = p4.y - p1.y;
-	float height2 = p3.y - p2.y;
-	
-	
-	float xxUp   = (vert.x - p1.x) / width1;
-	float xxDown = (vert.x  - p4.x ) / width2;
-	
-	float yyLeft  = (vert.y) / height1;
-	float yyRight = (vert.y) / height2;
-	
-	float xx1 = xxUp; // - ((vert.y / height1) / ((p4.x - p1.x) * 2.0));
-	float xx2 = xxDown;// - ((vert.y / height2) / (( p3.x - p2.x) * 1.0));
-	
-	float yy1  = yyLeft * (width1 - vert.x) / width1;
-	float yy2  = yyRight * (width2 - vert.x) / width2;
 
+	vec2 q = vert - p0;
+	vec2 b1 = p1 - p0;
+	vec2 b2 = p2 - p0;
+	vec2 b3 = p0 - p1 - p2 + p3;
 	
-	float xx = (xx2) / 1.0;
+	// Set up quadratic formula
+	float A = Wedge2D(b2, b3);
+	float B = Wedge2D(b3, q) - Wedge2D(b1, b2);
+	float C = Wedge2D(b1, q);
+
+	// Solve for v
+	vec2 uv;
+  	if (abs(A) < 0.001) {
+    	// Linear form
+    	uv.y = -C/B;
+	} else {
+	    // Quadratic form. Take positive root for CCW winding with V-up
+	    float discrim = B * B - 4.0 * A * C;
+	    uv.y = 0.5 * (-B + sqrt(discrim)) / A;
+	}
 	
-	float yy = yy1;
 	
-    vec4 col = vec4(xx, 0.0, 0.0, 1.0);
+	// Solve for u, using largest-magnitude component
+  	vec2 denom = b1 + uv.y * b3;
+  	if (abs(denom.x) > abs(denom.y))
+    	uv.x = (q.x - b2.x * uv.y) / denom.x;
+  	else
+    	uv.x = (q.y - b2.y * uv.y) / denom.y;
+	
+	
+    vec4 col = vec4(0.0, uv.y, 0.0, 1.0);
 	COLOR = col;
-	COLOR = texture(inputTexture, vec2(xx, UV.y));	
+	COLOR = texture(inputTexture, vec2(uv.x, uv.y));	
+	
 	
 }"
 
 [sub_resource type="ShaderMaterial" id=4]
 shader = SubResource( 3 )
-shader_param/p1 = Vector2( -15, 0 )
-shader_param/p2 = Vector2( 15, 0 )
-shader_param/p3 = Vector2( 10.6066, 40.6066 )
-shader_param/p4 = Vector2( -10.6066, 19.3934 )
+shader_param/p0 = Vector2( -15, 0 )
+shader_param/p1 = Vector2( 15, 0 )
+shader_param/p2 = Vector2( -15, 30 )
+shader_param/p3 = Vector2( 15, 30 )
 shader_param/inputTexture = ExtResource( 3 )
 
 [node name="Root" type="Node2D"]
@@ -124,11 +136,10 @@ script = ExtResource( 2 )
 [node name="TubeEl" type="Polygon2D" parent="."]
 material = SubResource( 4 )
 texture = ExtResource( 3 )
-polygon = PoolVector2Array( -15, 0, 15, 0, 10.6066, 40.6066, -10.6066, 19.3934 )
+polygon = PoolVector2Array( -15, 0, 15, 0, 15, 30, -15, 30 )
 uv = PoolVector2Array( 0, 0, 580, 0, 580, 580, 0, 580 )
 script = ExtResource( 4 )
 end = Vector2( 0, 30 )
 startWidth = 30
 endWidth = 30
-endAngle = 45
 inputTexture = ExtResource( 3 )

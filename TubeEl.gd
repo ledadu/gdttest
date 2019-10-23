@@ -37,6 +37,7 @@ func set_end_angle(val):
 
 func updatePolygon():
 	var median = [Vector2(-startWidth / 2, 0), Vector2(end.x - startWidth / 2, end.y)]
+	#var median = [Vector2(0, 0), Vector2(end.x, end.y)]
 	
 	var polygon = PoolVector2Array()
 	polygon.append(Vector2(median[0].x - startWidth / 2 + startWidth / 2, median[0].y))
@@ -47,9 +48,6 @@ func updatePolygon():
 	
 	polygon.append(endRotateOffset + Vector2(median[1].x + startWidth / 2, median[1].y))
 	polygon.append(-endRotateOffset + Vector2(median[1].x + startWidth / 2, median[1].y))
-
-	#polygon.append(Vector2(median[1].x + endWidth / 2 + startWidth / 2, median[1].y))
-	#polygon.append(Vector2(median[1].x - endWidth / 2 + startWidth / 2, median[1].y))
 	
 	set_polygon(polygon)
 	
@@ -59,10 +57,10 @@ func updatePolygon():
 	material.set_shader_param("medianHeight", median[1].y)
 	material.set_shader_param("downOffset", end.x)
 	material.set_shader_param("downAngle", radAngle)
-	material.set_shader_param("p1", polygon[0])
-	material.set_shader_param("p2", polygon[1])
+	material.set_shader_param("p0", polygon[0])
+	material.set_shader_param("p1", polygon[1])
+	material.set_shader_param("p2", polygon[3])
 	material.set_shader_param("p3", polygon[2])
-	material.set_shader_param("p4", polygon[3])
 	
 	material.set_shader_param("inputTexture", inputTexture)
 	
