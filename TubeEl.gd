@@ -50,15 +50,19 @@ func updatePolygon():
 
 	#polygon.append(Vector2(median[1].x + endWidth / 2 + startWidth / 2, median[1].y))
 	#polygon.append(Vector2(median[1].x - endWidth / 2 + startWidth / 2, median[1].y))
-
+	
 	set_polygon(polygon)
 	
 	var material = get_material()
 	material.set_shader_param("widthU", startWidth)
-	material.set_shader_param("widthD", endWidth - endRotateOffset * 2)
+	material.set_shader_param("widthD", endWidth)
 	material.set_shader_param("medianHeight", median[1].y)
 	material.set_shader_param("downOffset", end.x)
 	material.set_shader_param("downAngle", radAngle)
+	material.set_shader_param("p1", polygon[0])
+	material.set_shader_param("p2", polygon[1])
+	material.set_shader_param("p3", polygon[2])
+	material.set_shader_param("p4", polygon[3])
 	
 	material.set_shader_param("inputTexture", inputTexture)
 	

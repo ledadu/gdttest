@@ -31,11 +31,10 @@ shader_param/level = 0.0
 [sub_resource type="Shader" id=3]
 code = "shader_type canvas_item;
 
-uniform float widthU       = 1.0;
-uniform float widthD       = 1.0;
-uniform float medianHeight = 1.0;
-uniform float downOffset   = 1.0;
-uniform float downAngle    = 0.0;
+uniform vec2 p1;
+uniform vec2 p2;
+uniform vec2 p3;
+uniform vec2 p4;
 
 uniform sampler2D inputTexture;
 
@@ -47,44 +46,41 @@ void vertex() {
 
 
 void fragment() {
-	
-	float height          = medianHeight;
-	float medianOffset 	  = widthU / 2.0;
-	float xDifference  	  = widthU - widthD;
-	// float widthRatio  	  = widthD / widthU;
-	
-	
-	float xRotateRatio    = cos(downAngle);
+	float width1 = p2.x - p1.x;
+	float width2 = p3.x - p4.x;
+	float height1 = p4.y - p1.y;
+	float height2 = p3.y - p2.y;
 	
 	
-	float widthRatio  	  = widthD / (xRotateRatio * widthU);
-	float xRotateOffset   = (1.0 - xRotateRatio) * widthU / 2.0;
-	float vertaaa  = 1.0;// vert.y / (medianHeight);
-	float xTargetOffset   = 1.0 * downOffset * vert.y / height; 
+	float xxUp   = (vert.x - p1.x) / width1;
+	float xxDown = (vert.x  - p4.x ) / width2;
 	
-	float downOffsetRatio = height / (xDifference / 2.0);
-	float xOffsetScale	  = (vert.x + medianOffset - vert.y / downOffsetRatio - xTargetOffset - xRotateOffset) / widthD;
-	float xFactor      	  = height / (height - vert.y * (xDifference / widthU));
+	float yyLeft  = (vert.y) / height1;
+	float yyRight = (vert.y) / height2;
 	
-	float xx 		   	  = xOffsetScale * widthRatio * xFactor;
+	float xx1 = xxUp; // - ((vert.y / height1) / ((p4.x - p1.x) * 2.0));
+	float xx2 = xxDown;// - ((vert.y / height2) / (( p3.x - p2.x) * 1.0));
+	
+	float yy1  = yyLeft * (width1 - vert.x) / width1;
+	float yy2  = yyRight * (width2 - vert.x) / width2;
 
-	//float yRotateRatio    = sin(downAngle) * vert.y / ((vert.x + medianOffset - vert.y / downOffsetRatio ));
-	float yRotateRatio    = (1.0 + sin(downAngle)) * vert.y / (medianHeight);
-	float yRotateRatio2    = sin(downAngle) * vert.y / (medianHeight);
 	
-    vec4 col = vec4(0.0, yRotateRatio, 0.0, 1.0);
-	//COLOR = col;
-	COLOR = texture(inputTexture, vec2(xx, yRotateRatio));	
+	float xx = (xx2) / 1.0;
+	
+	float yy = yy1;
+	
+    vec4 col = vec4(xx, 0.0, 0.0, 1.0);
+	COLOR = col;
+	COLOR = texture(inputTexture, vec2(xx, UV.y));	
 	
 }"
 
 [sub_resource type="ShaderMaterial" id=4]
 shader = SubResource( 3 )
-shader_param/widthU = 30
-shader_param/widthD = 30
-shader_param/medianHeight = 30.0
-shader_param/downOffset = 0.0
-shader_param/downAngle = 0.785398
+shader_param/p1 = Vector2( -15, 0 )
+shader_param/p2 = Vector2( 15, 0 )
+shader_param/p3 = Vector2( 10.6066, 40.6066 )
+shader_param/p4 = Vector2( -10.6066, 19.3934 )
 shader_param/inputTexture = ExtResource( 3 )
 
 [node name="Root" type="Node2D"]
