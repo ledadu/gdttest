@@ -59,8 +59,8 @@ func updatePolygon():
 	material.set_shader_param("downAngle", radAngle)
 	material.set_shader_param("p0", polygon[0])
 	material.set_shader_param("p1", polygon[1])
-	material.set_shader_param("p2", polygon[3])
-	material.set_shader_param("p3", polygon[2])
+	material.set_shader_param("p2", polygon[2])
+	material.set_shader_param("p3", polygon[3])
 	
 	material.set_shader_param("inputTexture", inputTexture)
 	
