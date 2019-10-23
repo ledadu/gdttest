@@ -1,16 +1,25 @@
 extends Polygon2D
 tool
-export var startWidth = 10 setget set_start_width
+export var startWidth = 30 setget set_start_width
 export var startAngle = 0 setget set_start_angle
 
 export var end = Vector2() setget set_end
-export var endWidth = 10 setget set_end_width
+export var endWidth = 30 setget set_end_width
 export var endAngle = 0 setget set_end_angle
 
 export(Texture) var inputTexture setget set_texture
 
+func setShaderMaterial():
+	var InvBilinearShader = preload("res://invBilinear.shader")
+	var material = ShaderMaterial.new()
+	#print_debug(material)
+	material.shader = InvBilinearShader
+	print_debug(InvBilinearShader)
+	set_material(material)
+	
 	
 func updatePolygon():
+	setShaderMaterial()
 	var median = [Vector2(-startWidth / 2, 0), Vector2(end.x - startWidth / 2, end.y)]
 	
 	var polygon = PoolVector2Array()

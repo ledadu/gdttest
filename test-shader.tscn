@@ -2,8 +2,9 @@
 
 [ext_resource path="res://icon.png" type="Texture" id=1]
 [ext_resource path="res://Polygon2D.gd" type="Script" id=2]
-[ext_resource path="res://grid.png" type="Texture" id=3]
-[ext_resource path="res://TubeEl.gd" type="Script" id=4]
+[ext_resource path="res://invBilinear.shader" type="Shader" id=3]
+[ext_resource path="res://grid.png" type="Texture" id=4]
+[ext_resource path="res://TubeEl.gd" type="Script" id=5]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -28,64 +29,13 @@ void fragment() {
 shader = SubResource( 1 )
 shader_param/level = 0.0
 
-[sub_resource type="Shader" id=3]
-code = "shader_type canvas_item;
-
-uniform vec2 p0;
-uniform vec2 p1;
-uniform vec2 p2;
-uniform vec2 p3;
-
-uniform sampler2D inputTexture;
-
-varying vec2 vert;
-
-void vertex() {
-	vert = VERTEX;
-}
-
-float cross2d( in vec2 a, in vec2 b ) { return a.x*b.y - a.y*b.x; }
-
-vec2 invBilinear( in vec2 p, in vec2 a, in vec2 b, in vec2 c, in vec2 d ) {
-    vec2 e = b-a;
-    vec2 f = d-a;
-    vec2 g = a-b+c-d;
-    vec2 h = p-a;
-        
-    float k2 = cross2d( g, f );
-    float k1 = cross2d( e, f ) + cross2d( h, g );
-    float k0 = cross2d( h, e );
-    
-    float w = k1*k1 - 4.0*k0*k2;
-    if( w<0.0 ) return vec2(-1.0);
-    w = sqrt( w );
-
-    // will fail for k0=0, which is only on the ba edge 
-    float v = 2.0*k0/(-k1 - w); 
-    if( v<0.0 || v>1.0 ) v = 2.0*k0/(-k1 + w);
-
-    float u = (h.x - f.x*v)/(e.x + g.x*v);
-    if( u<0.0 || u>1.0 || v<0.0 || v>1.0 ) return vec2(-1.0);
-    return vec2( u, v );
-}
-
-void fragment() {
-	vec2 uv = invBilinear(vert, p0, p1, p2, p3);
-	
-    // vec4 col = vec4(uv.x, uv.y, 0.0, 1.0);
-	// COLOR = col;
-	COLOR = texture(inputTexture, vec2(uv.x, uv.y));
-	
-	
-}"
-
-[sub_resource type="ShaderMaterial" id=4]
-shader = SubResource( 3 )
-shader_param/p0 = Vector2( -21.6506, -12.5 )
-shader_param/p1 = Vector2( 21.6506, 12.5 )
-shader_param/p2 = Vector2( 14.7721, 32.6047 )
-shader_param/p3 = Vector2( -14.7721, 27.3953 )
-shader_param/inputTexture = ExtResource( 3 )
+[sub_resource type="ShaderMaterial" id=3]
+shader = ExtResource( 3 )
+shader_param/p0 = Vector2( -8.66025, -5 )
+shader_param/p1 = Vector2( 8.66025, 5 )
+shader_param/p2 = Vector2( 33.4923, 38.5505 )
+shader_param/p3 = Vector2( -13.4923, 21.4495 )
+shader_param/inputTexture = ExtResource( 4 )
 
 [node name="Root" type="Node2D"]
 
@@ -126,14 +76,14 @@ uv = PoolVector2Array( 0, 0, 32, 0, 64, 0, 65, 64, 32, 64, 0, 64 )
 script = ExtResource( 2 )
 
 [node name="TubeEl" type="Polygon2D" parent="."]
-material = SubResource( 4 )
-texture = ExtResource( 3 )
-polygon = PoolVector2Array( -21.6506, -12.5, 21.6506, 12.5, 14.7721, 32.6047, -14.7721, 27.3953 )
+material = SubResource( 3 )
+texture = ExtResource( 4 )
+polygon = PoolVector2Array( -8.66025, -5, 8.66025, 5, 33.4923, 38.5505, -13.4923, 21.4495 )
 uv = PoolVector2Array( 0, 0, 580, 0, 580, 580, 0, 580 )
-script = ExtResource( 4 )
-startWidth = 50
+script = ExtResource( 5 )
+startWidth = 20
 startAngle = 30
-end = Vector2( 0, 30 )
-endWidth = 30
-endAngle = 10
-inputTexture = ExtResource( 3 )
+end = Vector2( 10, 30 )
+endWidth = 50
+endAngle = 20
+inputTexture = ExtResource( 4 )
