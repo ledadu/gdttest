@@ -1,7 +1,6 @@
 extends Node2D
-#onready var JointArea2D = preload("JointArea2D.gd")
 
-signal update_constraint(joint, source_joint)
+signal update_constraint(joint, source_joint, width_stack, joint_stack)
 signal input_event(event, source_joint)
 
 export var follow          = false setget set_follow
@@ -55,8 +54,8 @@ func update_position():
 	update()
 	return true
 
-func trigger_update_constraint(source_joint):
-	emit_signal('update_constraint', source_joint, self)
+func trigger_update_constraint(source_joint, width_stack, joint_stack):
+	emit_signal('update_constraint', source_joint, self, width_stack, joint_stack)
 
 func _input_event(viewport, event, shape_idx):	
 	if event is InputEventMouseButton:

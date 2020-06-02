@@ -27,6 +27,7 @@ func _ready():
 	links.append(Link.new(a, b))	
 	links.append(Link.new(b, c))
 	links.append(Link.new(b, d))
+	links.append(Link.new(c, d))
 	"""
 	a.connect('input_event', self, 'on_input_event')
 	b.connect('input_event', self, 'on_input_event')
@@ -55,16 +56,18 @@ func update_links():
 
 func update_active_Joints():
 	var oneIsAttach = false	
+	
+	
 			
 	for joint in joints:
 		if joint.follow:
 			joint.set_target_position(mouse_position)
 		if joint.follow || joint.pinned:
 			oneIsAttach = true
-			joint.trigger_update_constraint(null)
+			joint.trigger_update_constraint(null, [], [])
 			
 	if !oneIsAttach:
-		joints[1].trigger_update_constraint(null)
+		joints[1].trigger_update_constraint(null, [], [])
 """
 func on_input_event(event, joint):
 	print('yoo')
