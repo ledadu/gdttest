@@ -12,8 +12,6 @@ var elasticity = 0.5
 func _init(joint_a, joint_b):
 	a = joint_a
 	b = joint_b
-	print(a)
-	print(b)
 	length = Vector2(b.position.x - a.position.x, b.position.y - a.position.y).length()
 	a.connect('update_constraint', self, 'on_update_constraint')
 	b.connect('update_constraint', self, 'on_update_constraint')

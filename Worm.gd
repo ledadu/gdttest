@@ -1,9 +1,10 @@
 extends Node2D
 
-var mouse_pressed = false
+var mouse_position = Vector2(0,0)
 
 onready var Joint = preload("Joint.gd")
 onready var Link = preload("Link.gd")
+
 
 # Declare member variables here. Examples:
 # var a = 2
@@ -26,12 +27,19 @@ func _ready():
 	links.append(Link.new(a, b))	
 	links.append(Link.new(b, c))
 	links.append(Link.new(b, d))
-	
+	"""
+	a.connect('input_event', self, 'on_input_event')
+	b.connect('input_event', self, 'on_input_event')
+	c.connect('input_event', self, 'on_input_event')
+	d.connect('input_event', self, 'on_input_event')
+	"""
 	for joint in joints:
 		add_child(joint)
 		
 	for link in links:
 		add_child(link)
+	
+	
 		
 func moveHead():
 	var mousePosition = get_viewport().get_mouse_position()
@@ -41,40 +49,45 @@ func update_joints_position():
 	for joint in joints:
 		joint.update_position()
 
-func draw_links():
+func update_links():
 	for link in links:
 		link.update()
 
 func update_active_Joints():
-	var oneIsPined = false
-	
+	var oneIsAttach = false	
+			
 	for joint in joints:
-		if joint.pinned:
-			oneIsPined = true
+		if joint.follow:
+			joint.set_target_position(mouse_position)
+		if joint.follow || joint.pinned:
+			oneIsAttach = true
 			joint.trigger_update_constraint(null)
 			
-	if !oneIsPined:
+	if !oneIsAttach:
 		joints[1].trigger_update_constraint(null)
-	
+"""
+func on_input_event(event, joint):
+	print('yoo')
+	print(event)
+	print(joint)
+"""
+
 func _input(event):
-	# Mouse in viewport coordinates
-	if event is InputEventMouseButton:
-		mouse_pressed = event.pressed
-		
-	if mouse_pressed:
-		joints[1].set_pinned(true)
-		joints[1].set_target_position(event.position)
+	if event is InputEventMouseMotion:
+		mouse_position = event.position	
 	
-	#if event.type == InputEvent.MOUSE_BUTTON:
-	#	if event.button_index == BUTTON_LEFT and event.pressed:
+	if event is InputEventMouseButton:
+		if event.button_index == BUTTON_LEFT and !event.pressed:
+			for joint in joints:
+				if joint.follow:
+					joint.set_follow(false)
+	pass
 
 func _process(delta):
 	update_active_Joints()
 	
 	update_joints_position()
 	
-	draw_links()
-	
-	# trigger draw
-	#update()
+	update_links()
+
 
