@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="godot tests"
-run/main_scene="res://testInstanceTube.tscn"
+run/main_scene="res://Test worm.tscn"
 config/icon="res://icon.png"
 
 [rendering]
