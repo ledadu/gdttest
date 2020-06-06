@@ -4,6 +4,8 @@ onready var Joint = preload("Joint.gd")
 var font = DynamicFont.new()
 var a = null
 var b = null
+var constraint_a = Vector2()
+var constraint_b = Vector2()
 var length = 0
 
 var consrtaint_force = 0.1
@@ -13,9 +15,41 @@ func _init(joint_a, joint_b):
 	a = joint_a
 	b = joint_b
 	length = Vector2(b.position.x - a.position.x, b.position.y - a.position.y).length()
-	a.connect('update_constraint', self, 'on_update_constraint')
-	b.connect('update_constraint', self, 'on_update_constraint')
+#	a.connect('update_constraint', self, 'on_update_constraint')
+#	b.connect('update_constraint', self, 'on_update_constraint')
 
+func link_must_be_constraint():
+	var actual_length = Vector2(b.target_position.x - a.target_position.x, b.target_position.y - a.target_position.y).length()
+	return abs(actual_length - length) > length * consrtaint_force
+
+func update_constraint(inverse):
+	var actual_length = Vector2(b.target_position.x - a.target_position.x, b.target_position.y - a.target_position.y).length()
+	
+	if (inverse):
+		if actual_length - length > length * consrtaint_force:
+			constraint_a = (b.target_position - a.target_position) * consrtaint_force
+			#a.set_target_position(a.target_position + constraint )
+		
+		if actual_length - length < -length * consrtaint_force:
+			constraint_a = -(b.target_position - a.target_position) * consrtaint_force
+			#a.set_target_position(a.target_position + constraint)
+	else:
+		if actual_length - length > length * consrtaint_force:
+			constraint_b = -(b.target_position - a.target_position)* consrtaint_force
+			#b.set_target_position(b.target_position + constraint)
+			
+		if actual_length - length < -length * consrtaint_force:
+			constraint_b = (b.target_position - a.target_position)* consrtaint_force
+			#b.set_target_position(b.target_position + constraint)
+			
+func apply_constraint():
+	a.set_target_position(a.target_position + constraint_a)
+	b.set_target_position(b.target_position + constraint_b)
+	constraint_a = Vector2()
+	constraint_b = Vector2()
+	
+	
+"""
 func update_constraint(source_joint, joint, width_stack, joint_stack):
 	var actual_length = Vector2(b.target_position.x - a.target_position.x, b.target_position.y - a.target_position.y).length()
 	var stack_index = width_stack.find(self)
@@ -56,11 +90,11 @@ func update_constraint(source_joint, joint, width_stack, joint_stack):
 		width_stack.append(self)
 		joint_stack.append(a)
 		a.trigger_update_constraint(b, width_stack, joint_stack)
-		
+"""		
 
 
-func on_update_constraint(source_joint, joint, width_stack, joint_stack):
-	update_constraint(source_joint, joint, width_stack, joint_stack)
+#func on_update_constraint(source_joint, joint, width_stack, joint_stack):
+#	update_constraint(source_joint, joint, width_stack, joint_stack)
 	
 func _draw():
 	var color = Color(0.5, 0.5, 0.5)

@@ -52,10 +52,11 @@ func update_position():
 	
 	position = position + delta_position * 0.1
 	update()
+	
 	return true
 
-func trigger_update_constraint(source_joint, width_stack, joint_stack):
-	emit_signal('update_constraint', source_joint, self, width_stack, joint_stack)
+#func trigger_update_constraint(source_joint, width_stack, joint_stack):
+#	emit_signal('update_constraint', source_joint, self, width_stack, joint_stack)
 
 func _input_event(viewport, event, shape_idx):	
 	if event is InputEventMouseButton:
