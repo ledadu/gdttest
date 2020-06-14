@@ -8,7 +8,8 @@ var constraint_a = Vector2()
 var constraint_b = Vector2()
 var length = 0
 
-var consrtaint_force = 0.1
+var constraint_force = 0.14
+var constraint_precision = 0.1
  
 	
 func _init(joint_a, joint_b):
@@ -20,26 +21,26 @@ func _init(joint_a, joint_b):
 
 func link_must_be_constraint():
 	var actual_length = Vector2(b.target_position.x - a.target_position.x, b.target_position.y - a.target_position.y).length()
-	return abs(actual_length - length) > length * consrtaint_force
+	return abs(actual_length - length) > length * constraint_precision
 
 func update_constraint(inverse):
 	var actual_length = Vector2(b.target_position.x - a.target_position.x, b.target_position.y - a.target_position.y).length()
 	
 	if (inverse):
-		if actual_length - length > length * consrtaint_force:
-			constraint_a = (b.target_position - a.target_position) * consrtaint_force
+		if actual_length - length > length * constraint_precision:
+			constraint_a = (b.target_position - a.target_position) * constraint_force
 			#a.set_target_position(a.target_position + constraint )
 		
-		if actual_length - length < -length * consrtaint_force:
-			constraint_a = -(b.target_position - a.target_position) * consrtaint_force
+		if actual_length - length < -length * constraint_precision:
+			constraint_a = -(b.target_position - a.target_position) * constraint_force
 			#a.set_target_position(a.target_position + constraint)
 	else:
-		if actual_length - length > length * consrtaint_force:
-			constraint_b = -(b.target_position - a.target_position)* consrtaint_force
+		if actual_length - length > length * constraint_precision:
+			constraint_b = -(b.target_position - a.target_position)* constraint_force
 			#b.set_target_position(b.target_position + constraint)
 			
-		if actual_length - length < -length * consrtaint_force:
-			constraint_b = (b.target_position - a.target_position)* consrtaint_force
+		if actual_length - length < -length * constraint_precision:
+			constraint_b = (b.target_position - a.target_position)* constraint_force
 			#b.set_target_position(b.target_position + constraint)
 			
 func apply_constraint():
@@ -63,13 +64,13 @@ func update_constraint(source_joint, joint, width_stack, joint_stack):
 	if (a == joint && !passed_b):
 		if (b == source_joint):
 			return
-		if actual_length - length > length * consrtaint_force:
+		if actual_length - length > length * constraint_force:
 			var constraint = b.target_position - a.target_position
-			b.set_target_position(b.target_position - constraint * consrtaint_force)
+			b.set_target_position(b.target_position - constraint * constraint_force)
 			
-		if actual_length - length < -length * consrtaint_force:
+		if actual_length - length < -length * constraint_force:
 			var constraint = b.target_position - a.target_position
-			b.set_target_position(b.target_position + constraint * consrtaint_force)
+			b.set_target_position(b.target_position + constraint * constraint_force)
 		width_stack.append(self)
 		joint_stack.append(b)
 		b.trigger_update_constraint(a, width_stack, joint_stack)
@@ -80,13 +81,13 @@ func update_constraint(source_joint, joint, width_stack, joint_stack):
 	if (b == joint && !passed_a):
 		if (a == source_joint):
 			return
-		if actual_length - length > length * consrtaint_force:
+		if actual_length - length > length * constraint_force:
 			var constraint = b.target_position - a.target_position
-			a.set_target_position(a.target_position + constraint * consrtaint_force)
+			a.set_target_position(a.target_position + constraint * constraint_force)
 		
-		if actual_length - length < -length * consrtaint_force:
+		if actual_length - length < -length * constraint_force:
 			var constraint = b.target_position - a.target_position
-			a.set_target_position(a.target_position - constraint * consrtaint_force)
+			a.set_target_position(a.target_position - constraint * constraint_force)
 		width_stack.append(self)
 		joint_stack.append(a)
 		a.trigger_update_constraint(b, width_stack, joint_stack)

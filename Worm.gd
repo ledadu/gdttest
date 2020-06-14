@@ -13,24 +13,45 @@ var joints = []
 var links = []
 var links_to_process = [];
 var joints_to_process = [];
-var link_processed = [];
+var link_processed = { false: [], true: [] };
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	var a = Joint.new(Vector2(100, 100))
+	joints.append(a)
 	
+	for i in range(20):
+		var b = Joint.new(Vector2(a.position.x, a.position.y + 20))
+		joints.append(b)
+		links.append(Link.new(a, b))
+		a = b
+	
+	"""
 	var a = Joint.new(Vector2(100, 100))
 	joints.append(a)
 	var b = Joint.new(Vector2(100, 200))
 	joints.append(b)
 	var c = Joint.new(Vector2(200, 200))
 	joints.append(c)
-	var d = Joint.new(Vector2(100, 300))
+	var d = Joint.new(Vector2(200, 100))
 	joints.append(d)
+	var e = Joint.new(Vector2(150, 150))
+	joints.append(e)
 	
 	links.append(Link.new(a, b))	
 	links.append(Link.new(b, c))
-	links.append(Link.new(b, d))
 	links.append(Link.new(c, d))
+	links.append(Link.new(d, a))
+	
+	links.append(Link.new(a, e))
+	links.append(Link.new(b, e))
+	links.append(Link.new(c, e))
+	links.append(Link.new(d, e))
+	
+	links.append(Link.new(a, c))
+	links.append(Link.new(b, d))
+	"""
+	
 	"""
 	a.connect('input_event', self, 'on_input_event')
 	b.connect('input_event', self, 'on_input_event')
@@ -67,21 +88,24 @@ func add_active_joints_to_process():
 			joints_to_process.append(joint)
 			
 func add_passive_links_to_process():
+	"""
 	for link in links:
 		if link.link_must_be_constraint():
 			joints_to_process.append(link.a)
 			links_to_process.append({"link": link, "inverse": false})
-		
+	"""
+	joints_to_process.append(links[0].a)
+	
 func add_links_to_process():
 	# TODO unique joints_to_process
 	links_to_process = []
 	for joint in joints_to_process:
 		for link in links:
-			if (!link_processed.has(link)):
-				if (joint ==link.a):
-					links_to_process.append({"link": link, "inverse": false})
-				if (joint ==link.b):
-					links_to_process.append({"link": link, "inverse": true})
+			var normal  = (joint == link.a);
+			var inverse = (joint ==link.b);
+			if ( (normal || inverse) && !link_processed[inverse].has(link)) :
+				links_to_process.append({"link": link, "inverse": inverse})
+	
 
 
 func update_links_to_process():			
@@ -90,7 +114,7 @@ func update_links_to_process():
 
 	for link_to_process in links_to_process:
 		link_to_process.link.update_constraint(link_to_process.inverse)
-		link_processed.append(link_to_process.link)
+		link_processed[link_to_process.inverse].append(link_to_process.link)
 		if (link_to_process.inverse):
 			joints_to_process.append(link_to_process.link.a)
 		else:
@@ -135,7 +159,7 @@ func _process(delta):
 	
 	
 	update_joints_position()
-	link_processed = []
+	link_processed = {false: [], true: [] };
 	
 	#redrawn links
 	for link in links:
